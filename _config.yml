@@ -1,0 +1,12 @@
+safe: true
+permalink: /:title
+title: "Alice and bird" 
+author: lilith qi 
+description: Starting up...
+exclude: ['README.md']
+paginate: 2 
+pygments: true
+encoding: utf-8
+img_url: http://lililqth.github.io/images
+github: lililqth
+weibo: lililqth

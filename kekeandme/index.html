@@ -1,0 +1,106 @@
+<!DOCTYPE HTML>
+<!--<html xmlns="http://www.w3.org/1999/xhtml" xml:lang="en" lang="en">-->
+<head>
+	<title>keke and me</title>
+	<meta http-equiv="content-type" content="text/html; charset=UTF-8">
+	<style type="text/css">
+		@font-face {
+			font-family: digit;
+			src: url('digital-7_mono.ttf') format("truetype");
+		}
+	</style>
+	<link href="css/default.css" type="text/css" rel="stylesheet">
+	<script type="text/javascript" src="js/jquery.js"></script>
+	<script type="text/javascript" src="js/garden.js"></script>
+    <script type="text/javascript" src="js/functions.js"></script>
+</head>
+
+<body bgcolor = #FAF0E6>
+	<div id="mainDiv">
+		<div id="content">
+			<div id="code">
+				<span >生日快乐！宝宝~</span><br />
+				<span /><span  >一直想给你一件特别的生日礼物,我想,倾注了自己的心血的礼物，也许就是最好的礼物把~so,我写了这个。</span><br />
+				<span  /><span  >不知不觉，，我们已经一起走过了将近四年的时间</span><br />
+				<span  /><span  >回想起我给你表白的那天，依然历历在目......</span><br />
+				<span  /><span  >这四年</span><br />
+				<span  /><span  >你给我过了第一个像样的生日</span><br />
+				<span  /><span  >你陪我度过高三那一个个不眠之夜</span><br />
+				<span  /><span  >你教会了我——有爱就要勇敢地说出来</span><br />
+				<span  /><span  >......</span><br />
+				<span  /><span  >......</span><br />
+				<span  /><span  >我们</span><br />
+				<span  /><span  >一起在公园划船</span><br />
+				<span  /><span  >一起放风筝</span><br />
+				<span  /><span  >一起去双龙湾旅游</span><br />
+				<span  /><span  >一起逛忆星坊</span><br />
+				<span  /><span  >一起吃串串，一起吃烤鸭~~~你总是比我能吃</span><br />
+				<span  /><span  >一起在陌生的城市里散步</span><br />
+				<span  /><span  >一起打羽毛球，~~虽然我打不过你。。:-(。</span><br />
+				<span  /><span  >一起看电影</span><br />
+				<span  /><span  >一起上补习班，然后勾搭整整一节课!什么也没有听到</span><br />
+				<span  /><span  >一起逛街，你帮我挑衣服</span><br />
+				<span  /><span  >一起早起满洛阳找牛肉汤喝</span><br />
+				<span  /><span  >我们一起，走遍了去过的每一个城市</span><br />
+				<span  /><span  >和你在一起，两个人，才完整</span><br />
+				<span  /><span  >我已经离不开你</span><br />
+				<span  /><span  >虽然空间将我们分离，但我们仍像打不死的小强一样，坚定地在一起</span><br />
+				<span  /><span  >我们已经看惯了周围的人分分合合</span><br />
+				<span  /><span  >但是我永远在这里，无论什么时候，哪里有我，哪里就有你的家</span><br />
+				<span  /><span  >我爱你！我的宝宝</span><br />
+				<span  /><span  >   --yours benben</span><br />
+			</div>
+			<div id="loveHeart">
+				<canvas id="garden"></canvas>
+				<div id="words">
+					<div id="messages">
+						keke, I have fallen in love with you for
+						<div id="elapseClock"></div>
+					</div>
+					<div id="loveu">
+						Love u forever and ever.<br/>
+						<div class="signature">- benben</div>
+					</div>
+				</div>
+			</div>
+		</div>
+		<div id="copyright">
+			lililqth@gmail.com<br>
+			Copyright © 2013 lililth-qi 2013 - 2016
+		</div>
+	</div>
+	<script type="text/javascript">
+		var offsetX = $("#loveHeart").width() / 2;
+		var offsetY = $("#loveHeart").height() / 2 - 55;
+		var together = new Date();
+		together.setFullYear(2010,3,29);
+		together.setHours(12);
+		together.setMinutes(0);
+		together.setSeconds(0);
+		together.setMilliseconds(0);
+		
+		if (!document.createElement('canvas').getContext) {
+			var msg = document.createElement("div");
+			msg.id = "errorMsg";
+			msg.innerHTML = "Your browser doesn't support HTML5!<br/>Recommend use Chrome 14+/IE 9+/Firefox 7+/Safari 4+"; 
+			document.body.appendChild(msg);
+			$("#code").css("display", "none")
+			$("#copyright").css("position", "absolute");
+			$("#copyright").css("bottom", "10px");
+		    document.execCommand("stop");
+		} else {
+			setTimeout(function () {
+				startHeartAnimation();
+			}, 6000);
+
+			timeElapse(together);
+			setInterval(function () {
+				timeElapse(together);
+			}, 500);
+
+			adjustCodePosition();
+			$("#code").typewriter();
+		}
+	</script>
+</body>
+</html>

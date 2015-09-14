@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta charset="UTF-8" />
+        <title>Floyd</title>
+        
+        <meta name="author" content="lilith qi" />
+        
+		<link rel="alternate" type="application/rss+xml" href="/rss.xml" />
+		<link rel="stylesheet" type="text/css" href="/sevenpointfive.css" />
+		<link rel="stylesheet" type="text/css" href="/syntax.css" />
+		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=EB+Garamond' />
+		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cantarell' />
+		<!--[if lt IE 9]>
+		<style type="text/css">
+			.startup_box {
+				width: 688px; /* 750px minus the inner box's padding and outer box's border because of stupid IE box model */
+			}
+		</style>
+		<![endif]-->
+	</head>
+	<body>
+        <div id="container">
+        <div id="body">
+<div class="startup_box">
+  <div class="startup_box_inner">
+    <div class="header">
+        <div class="headunit">
+            <div class="unit_inner">
+                <h1><a href="/" class="structural">Alice and bird</a></h1>
+            </div>
+        </div>
+        <h2>Starting up...</h2>
+        <div class="progressbar">
+            <div class="sofar"></div>
+        </div>
+    </div>
+    <div class="posts">
+
+
+<div id="postunit-floyd" class="postunit">
+    <div class="unit_inner">
+        <div class="post">
+            <h1><a href="/floyd" class="structural">Floyd</a></h1>
+            <p>最近复习了下最短路算法中最简单的的floyd算法，floyd的基本结构如下</p>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">k</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+    	<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    	<span class="p">{</span>
+    		<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">j</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+    		<span class="p">{</span>
+    			<span class="k">if</span><span class="p">(</span> <span class="n">dis</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span><span class="o">+</span><span class="n">dis</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dis</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+    			<span class="p">{</span>
+    				<span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dis</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span><span class="o">+</span><span class="n">dis</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">k</span><span class="p">];</span>
+    			<span class="p">}</span>
+    		<span class="p">}</span>
+    	<span class="p">}</span>
+    <span class="p">}</span></code></pre></div>
+
+<p>k是中间节点，一定要放在最外层循环，为什么呢？我们来看下面这个例子：</p>
+
+<p><img src="http://lililqth.github.io/images/floyd.png" alt="floyd" /></p>
+
+<p>如果将K放在最内层循环，对于节点A到节点B，只能够找到A-&gt;B一条路径，因为A-&gt;D+D-&gt;B=INF且A-&gt;C+C-&gt;B=INF<br />
+这时所有的中间节点都遍历完成，1到2的最短距离被确定为9，这显然是不正确的，A-&gt;B的距离被过早确定了。因此我们必须将中间节点放在最外层循环中。<br />
+照例附上一道floyd入门题 
+<strong>poj 1125</strong></p>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="cp">#include &lt;stdio.h&gt;</span>
+<span class="cp">#include &lt;string.h&gt;</span>
+<span class="cp">#include &lt;stdlib.h&gt;</span>
+<span class="cp">#include &lt;limits.h&gt;</span>
+<span class="cp">#define INT_MAX 9999999</span>
+<span class="kt">int</span> <span class="n">map</span><span class="p">[</span><span class="n">max</span><span class="p">][</span><span class="n">max</span><span class="p">];</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span><span class="kt">char</span><span class="o">**</span> <span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">,</span><span class="n">nEachPerson</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">scanf</span><span class="p">(</span><span class="s">&quot;%d&quot;</span><span class="p">,</span><span class="o">&amp;</span><span class="n">n</span><span class="p">)</span><span class="o">&amp;&amp;</span><span class="n">n</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">max</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">j</span><span class="o">&lt;</span><span class="n">max</span><span class="p">;</span><span class="n">j</span><span class="o">++</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">INT_MAX</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="kt">int</span> <span class="n">person</span><span class="p">,</span><span class="n">time</span><span class="p">;</span>
+      <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+      <span class="p">{</span>
+            <span class="n">scanf</span><span class="p">(</span><span class="s">&quot;%d&quot;</span><span class="p">,</span><span class="o">&amp;</span><span class="n">nEachPerson</span><span class="p">);</span>
+            <span class="k">while</span><span class="p">(</span><span class="n">nEachPerson</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">scanf</span><span class="p">(</span><span class="s">&quot;%d %d&quot;</span><span class="p">,</span><span class="o">&amp;</span><span class="n">person</span><span class="p">,</span><span class="o">&amp;</span><span class="n">time</span><span class="p">);</span>
+                <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">person</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="p">;</span>
+            <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">k</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+      <span class="p">{</span>
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">j</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="kt">int</span> <span class="n">distance</span> <span class="o">=</span> <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span><span class="o">+</span><span class="n">map</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+                    <span class="k">if</span><span class="p">(</span> <span class="n">distance</span> <span class="o">&lt;</span> <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                    <span class="p">{</span>
+                        <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">distance</span><span class="p">;</span>
+                   <span class="p">}</span>
+                <span class="p">}</span>
+             <span class="p">}</span>
+          <span class="p">}</span>
+          <span class="kt">int</span> <span class="n">minFinal</span><span class="o">=</span><span class="n">INT_MAX</span> <span class="p">,</span> <span class="n">maxEachLine</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">minStart</span><span class="o">=</span><span class="n">INT_MAX</span><span class="p">;</span>
+          <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+          <span class="p">{</span>
+               <span class="n">maxEachLine</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+               <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">j</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span><span class="n">j</span><span class="o">++</span><span class="p">)</span>
+               <span class="p">{</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">==</span><span class="n">j</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="k">continue</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">maxEachLine</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="n">maxEachLine</span> <span class="o">=</span> <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+                <span class="p">}</span>
+            <span class="p">}</span>    
+            <span class="k">if</span><span class="p">(</span><span class="n">maxEachLine</span><span class="o">&lt;</span><span class="n">minFinal</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">minFinal</span> <span class="o">=</span> <span class="n">maxEachLine</span><span class="p">;</span>
+                <span class="n">minStart</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">minFinal</span><span class="o">==</span><span class="n">INT_MAX</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;disjoint</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">minStart</span><span class="p">,</span><span class="n">minFinal</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="c1">//system(&quot;pause&quot;);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+
+            <!--多说评论 start-->
+            <div class="ds-thread" data-thread-key=/floyd data-title=Floyd data-url=/floyd></div>
+            <!-- 多说评论框 end -->
+            <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"helloqiji"};
+                (function() {
+                 var ds = document.createElement('script');
+                 ds.type = 'text/javascript';ds.async = true;
+                 ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                 ds.charset = 'UTF-8';
+                 (document.getElementsByTagName('head')[0] 
+                  || document.getElementsByTagName('body')[0]).appendChild(ds);
+                 })();
+            </script>
+            <!-- 多说公共JS代码 end -->
+        </div>
+    </div>
+</div>
+
+        </div>
+        <br/>
+        &copy lililqth
+      </div>
+    </div>
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-47292064-2', 'auto');
+    ga('send', 'pageview');
+
+</script>
+</div>
+
+<div id="extensions">
+
+
+
+<a href="https://github.com/lililqth" class="github" title="@lililqth on GitHub">
+    GitHub
+</a>
+
+
+<a href="http://lililqth.github.io/kekeandme" class="love" title="LOVE">
+    LOVE
+</a>
+
+
+<a href="http://weibo.com/lililqth" class="weibo" title="@lililqth on Weibo">
+    Weibo
+</a>
+
+
+
+
+    <a href="/%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2" class="next" title="Next post">Next</a>
+
+</div>
+
+
+        </div>
+	</body>
+</html>

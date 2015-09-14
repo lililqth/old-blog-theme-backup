@@ -1,0 +1,288 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta charset="UTF-8" />
+        <title>Alice and bird</title>
+        
+        <meta name="author" content="lilith qi" />
+        
+		<link rel="alternate" type="application/rss+xml" href="/rss.xml" />
+		<link rel="stylesheet" type="text/css" href="/sevenpointfive.css" />
+		<link rel="stylesheet" type="text/css" href="/syntax.css" />
+		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=EB+Garamond' />
+		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cantarell' />
+		<!--[if lt IE 9]>
+		<style type="text/css">
+			.startup_box {
+				width: 688px; /* 750px minus the inner box's padding and outer box's border because of stupid IE box model */
+			}
+		</style>
+		<![endif]-->
+	</head>
+	<body>
+        <div id="container">
+        <div id="body">
+<div class="startup_box">
+  <div class="startup_box_inner">
+    <div class="header">
+        <div class="headunit">
+            <div class="unit_inner">
+                <h1><a href="/" class="structural">Alice and bird</a></h1>
+            </div>
+        </div>
+        <h2>Starting up...</h2>
+        <div class="progressbar">
+            <div class="sofar"></div>
+        </div>
+    </div>
+    <div class="posts">
+
+
+
+<div id="postunit-使用ElementTree解析XML" class="postunit">
+    <div class="unit_inner">
+        <div class="post">
+            <h1><a href="/%E4%BD%BF%E7%94%A8ElementTree%E8%A7%A3%E6%9E%90XML" class="structural">使用ElementTree解析XML</a></h1>
+            <p>elementTree是Python的一个XML解析包，可以十分方便的在XML文件中查找，删除，移动结点或者子树。</p>
+
+<h2 id="section">引用包</h2>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">try</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">xml.etree.cElementTree</span> <span class="kn">as</span> <span class="nn">ET</span>
+<span class="k">except</span> <span class="ne">ImportError</span><span class="p">:</span>
+    <span class="kn">import</span> <span class="nn">xml.etree.ElementTree</span> <span class="kn">as</span> <span class="nn">ET</span></code></pre></div>
+
+<h2 id="section-1">基本操作</h2>
+<p><strong>从文件读取：</strong></p>
+
+<p>经过parse操作后，就可以得到一棵语法树</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">tree</span> <span class="o">=</span> <span class="n">ET</span><span class="o">.</span><span class="n">parse</span><span class="p">(</span><span class="n">fileName</span><span class="p">)</span></code></pre></div>
+
+<p><strong>获取根节点</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span></code></pre></div>
+
+<p><strong>删除子节点</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+<span class="n">item</span><span class="o">.</span><span class="n">remove</span><span class="p">(</span><span class="n">subItem</span><span class="p">)</span></code></pre></div>
+
+<p><strong>添加子节点</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+<span class="c"># 添加一个子节点</span>
+<span class="n">item</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="n">subItem</span><span class="p">)</span>
+
+<span class="c"># 添加多个子节点</span>
+<span class="n">item</span><span class="o">.</span><span class="n">extend</span><span class="p">(</span><span class="n">subItemList</span><span class="p">)</span></code></pre></div>
+
+<p><strong>查找节点</strong></p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+<span class="c"># 查找符合匹配的第一个结点</span>
+<span class="n">item</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;Path&quot;</span><span class="p">)</span>
+<span class="c"># 查找符合要求的所有结点</span>
+<span class="n">item</span><span class="o">.</span><span class="n">findall</span><span class="p">(</span><span class="s">&quot;Path&quot;</span><span class="p">)</span></code></pre></div>
+
+<p>ElementTree一定程度上支持xpath，但是所支持的这些特性我认为已经足够用，下面是常用的几种用法：</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+<span class="c"># 递归的查找所有符合要求的结点</span>
+<span class="n">item</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;.//Name&quot;</span><span class="p">)</span>
+<span class="c"># 其中【2】表示符合要求的第二个Chart</span>
+<span class="n">item</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;Model/Chart[2]/state&quot;</span><span class="p">)</span>
+<span class="c"># 查找Name属性为OUTPUT的Model</span>
+<span class="n">item</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;Model[@Name=&#39;OUTPUT&#39;]&quot;</span><span class="p">)</span></code></pre></div>
+
+<p>下图的表格中是完整的用法:</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>语法</th>
+      <th>作用</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>*</td>
+      <td>查找所有的孩子结点，比如：”*/egg”:查找所有叫做egg的孙子结点</td>
+    </tr>
+    <tr>
+      <td>.</td>
+      <td>表示当前路径，一般用在路径的开头表明这是一个相对路径。不加这个点直接写其实也是可以的</td>
+    </tr>
+    <tr>
+      <td>//</td>
+      <td>递归地查找所有的孩子结点</td>
+    </tr>
+    <tr>
+      <td>..</td>
+      <td>表示父结点</td>
+    </tr>
+    <tr>
+      <td>[@attrib]</td>
+      <td>查找带有attrib属性的所有结点</td>
+    </tr>
+    <tr>
+      <td>[@attrib=’value’]</td>
+      <td>查找attrib=value的结点</td>
+    </tr>
+    <tr>
+      <td>[tag]</td>
+      <td>查找所有的包含叫做tag的孩子的结点，只能有一个tag，只能向下查找一层</td>
+    </tr>
+    <tr>
+      <td>[position]</td>
+      <td>查找在某个位置的结点Chart[2]查找第二个chart结点，chart.last()表示最后一个结点</td>
+    </tr>
+  </tbody>
+</table>
+
+<p><strong>移动结点</strong></p>
+
+<p>要移动结点可以将find到的结点直接append到目标位置的父节点上，可以将该结点连同所有子节点都递归地移动到目标结点:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">root</span> <span class="o">=</span> <span class="n">tree</span><span class="o">.</span><span class="n">getroot</span><span class="p">()</span>
+<span class="n">element</span> <span class="o">=</span> <span class="n">item</span><span class="o">.</span><span class="n">find</span><span class="p">(</span><span class="s">&quot;Name&quot;</span><span class="p">)</span>
+<span class="n">dst</span><span class="o">.</span><span class="n">append</span><span class="p">(</span><span class="s">&quot;elememt&quot;</span><span class="p">)</span></code></pre></div>
+
+<h2 id="section-2">获取结点信息</h2>
+<p>每个element对象都具有以下属性：
+1. tag：string对象，表示数据代表的种类。
+2. attrib：dictionary对象，表示附有的属性。
+3. text：string对象，表示element的内容。
+4. tail：string对象，表示element闭合之后的尾迹。
+5. 若干子元素（child elements）。</p>
+
+<div class="highlight"><pre><code class="language-xml" data-lang="xml"><span class="nt">&lt;tag</span> <span class="na">attrib1=</span><span class="s">1</span><span class="nt">&gt;</span>text<span class="nt">&lt;/tag&gt;</span>tail
+  1     2        3         4</code></pre></div>
+
+<p>如果要获取某个对象的这些属性也十分简单:</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># 获取tag</span>
+<span class="n">item</span><span class="o">.</span><span class="n">tag</span>
+<span class="c"># 获取attrib</span>
+<span class="n">item</span><span class="o">.</span><span class="n">attrib</span>
+<span class="o">...</span></code></pre></div>
+
+<h2 id="section-3">保存</h2>
+<p>以上进行的所有处理都是在内部数据结构上进行的，要使之生效必须保存到磁盘上：  </p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">tree</span><span class="o">.</span><span class="n">write</span><span class="p">(</span><span class="n">fileName</span><span class="p">)</span></code></pre></div>
+
+
+        </div>
+    </div>
+</div>
+
+<div id="postunit-计算机开机流程" class="postunit">
+    <div class="unit_inner">
+        <div class="post">
+            <h1><a href="/%E8%AE%A1%E7%AE%97%E6%9C%BA%E5%BC%80%E6%9C%BA%E6%B5%81%E7%A8%8B" class="structural">计算机开机流程</a></h1>
+            <h2 id="bios">执行BIOS前</h2>
+
+<h3 id="cpu">一.  CPU初始化</h3>
+<p>按下电源开关，电源向主板和其他设备供电，主板的控制芯片组会向CPU发出一个RESET信号，让CPU初始化，当电源供电稳定后（一瞬间），撤去RESET信号，CPU马上跳转到BIOS的启动代码处，启动BIOS。</p>
+
+<h2 id="bios-1">BIOS执行中</h2>
+
+<h3 id="section">二.  硬件自检</h3>
+<p>BIOS首先进行“硬件自检”（power-on-self-test 缩写为 POST）</p>
+
+<h4 id="section-1">硬件自检的过程</h4>
+
+<ol>
+  <li>进行关键设备的检测
+640KB的基本内存， system clock 显卡
+在检查完显卡之后，就会在屏幕上显示显卡信息，并对其他非关键硬件进行检测，</li>
+  <li>非关键部件的检测
+640kb以上的内存， io口，驱动器，键盘，CMOS等
+如果在硬件出现问题，主板会发出不同含义的蜂鸣。</li>
+</ol>
+
+<p>硬件自检过程，检查硬件和CMOS中的设置是否相符，如果和CMOS中的设置相符的话，依次检查各个设备的主引导扇区。
+BIOS按照”启动顺序“，首先将控制权转交给排在第一位的存储设备。</p>
+
+<h3 id="section-2">三.  主引导记录</h3>
+<p>排在第一位的存储设备的第一个扇区称为：“主引导扇区”它由三个部分组成：</p>
+
+<ol>
+  <li>第1-446字节：调用操作系统的机器码（”主引导记录“）
+检查分区表是否正确，并将控制权交给硬盘上的引导程序。</li>
+  <li>第447-510字节：分区表（Partition table）
+占据64个字节，每个分区占用16个字节，最多可以描述4个分区。</li>
+  <li>主引导记录签名（0x55, 0xAA）</li>
+</ol>
+
+<p>BIOS首先检查该设备的MBR中的最后两个字节是否是0x55，0xAA，还对磁盘中是否有活动分区等进行检查
+如果满足要求，计算机的控制权就会被转交给硬盘的某个分区。</p>
+
+<p>要交给哪个分区呢？这个时候就要读取分区表，如果第一个字节为：0x80就代表该分区是激活分区。
+四个分区中只能有一个是激活分区。
+这个时候计算机的控制权就转交给了硬盘中的某个分区。</p>
+
+<h3 id="section-3">四. 硬盘启动</h3>
+<p>计算机会读取激活分区的第一个扇区，称为”卷引导记录“（volume boot record）<br />
+作用是告诉计算机操作系统在这个分区中的位置，之后计算机就会加载操作系统。</p>
+
+<h2 id="bios-2">BIOS执行后</h2>
+
+<p>以linux操作系统为例，首先载入/boot目录下面的kernel，内核加载成功以后，第一个运行的程序是/sbin/init<br />
+这是linux启动后加载的第一个进程，pid进程编号为1.</p>
+
+        </div>
+    </div>
+</div>
+
+
+        </div>
+        <br/>
+        &copy lililqth
+      </div>
+    </div>
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-47292064-2', 'auto');
+    ga('send', 'pageview');
+
+</script>
+</div>
+
+<div id="extensions">
+
+    <a href="/page3" class="previous" title="Older posts">Next</a>
+
+
+
+<a href="https://github.com/lililqth" class="github" title="@lililqth on GitHub">
+    GitHub
+</a>
+
+
+<a href="http://lililqth.github.io/kekeandme" class="love" title="LOVE">
+    LOVE
+</a>
+
+
+<a href="http://weibo.com/lililqth" class="weibo" title="@lililqth on Weibo">
+    Weibo
+</a>
+
+
+
+
+    <a href="/"
+    class="next" title="Newer posts">Previous</a>
+
+</div>
+
+
+        </div>
+	</body>
+</html>

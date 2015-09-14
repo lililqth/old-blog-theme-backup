@@ -1,0 +1,259 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta charset="UTF-8" />
+        <title>Alice and bird</title>
+        
+        <meta name="author" content="lilith qi" />
+        
+		<link rel="alternate" type="application/rss+xml" href="/rss.xml" />
+		<link rel="stylesheet" type="text/css" href="/sevenpointfive.css" />
+		<link rel="stylesheet" type="text/css" href="/syntax.css" />
+		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=EB+Garamond' />
+		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cantarell' />
+		<!--[if lt IE 9]>
+		<style type="text/css">
+			.startup_box {
+				width: 688px; /* 750px minus the inner box's padding and outer box's border because of stupid IE box model */
+			}
+		</style>
+		<![endif]-->
+	</head>
+	<body>
+        <div id="container">
+        <div id="body">
+<div class="startup_box">
+  <div class="startup_box_inner">
+    <div class="header">
+        <div class="headunit">
+            <div class="unit_inner">
+                <h1><a href="/" class="structural">Alice and bird</a></h1>
+            </div>
+        </div>
+        <h2>Starting up...</h2>
+        <div class="progressbar">
+            <div class="sofar"></div>
+        </div>
+    </div>
+    <div class="posts">
+
+
+
+<div id="postunit-粒子滤波" class="postunit">
+    <div class="unit_inner">
+        <div class="post">
+            <h1><a href="/%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2" class="structural">粒子滤波</a></h1>
+            <p>最近我使用C++和opencv实现了最基本的粒子滤波，总算掌握了其各个细节，鉴于网上的各种资料都是抄来抄去，很少有能讲清楚的，在这里写下我的理解，希望大家能少走一点弯路。  </p>
+
+<h2 id="section">一. 基本流程</h2>
+
+<ol>
+  <li><strong>初始化</strong>：
+    <ul>
+      <li>选定目标区域：选定你要跟踪的目标，可以用鼠标在画面中选中。选定之后计算目标区域的颜色直方图作为目标的特征，颜色直方图根据自己的需要可以使用RGB或者HSV颜色空间。</li>
+      <li>撒点：选定目标之后，正式开始跟踪，初始化时将粒子撒在选定区域中心点的周围。</li>
+      <li>初始化每一个粒子的相似度为1/n（共有n个粒子）。</li>
+    </ul>
+  </li>
+  <li><strong>传播</strong>：为每一个点添加服从某种分布的噪声，使之扩散开来，目标搜索的范围主要由粒子散布的噪声分布模型决定，我采用服从高斯的噪声。</li>
+  <li><strong>观测</strong>：计算每一个粒子所在区域的颜色直方图，并计算与目标区域颜色直方图的相似度，相似度使用巴氏距离，具体的计算方法见下方。</li>
+  <li><strong>估计预测结果</strong>：预测的结果可以直接对所有点的位置求加权平均得到。</li>
+  <li><strong>更新目标模型</strong>：将上一帧预测的结果对目标模型进行更新，使用一个更新权重，对新的模型和旧的模型进行综合。
+之后就是对2，3，4，5不断重复的过程。</li>
+</ol>
+
+<h2 id="section-1">二. 目标模型</h2>
+
+<p>目标模型可以使用被跟踪区域的颜色直方图，分别对RGB的值进行统计，如果进行完全统计的话需要255*255*255大小的直方图，计算量过大，因此我们可以将0到255这2^8个数规约到0到7这8个数，以减小计算量。这样我们就只需要8<em>8</em>8的空间来保存目标模型，计算量也大大减小了。</p>
+
+<h2 id="section-2">三. 相似度</h2>
+
+<p>观测区域目标模型的相似度就是两个颜色直方图的相似度。在这里采用巴氏距离作为两个颜色直方图的相似度。</p>
+
+<h2 id="section-3">四. 高斯噪声的产生方法</h2>
+
+<p>产生高斯噪声实际上就是产生高斯随机数，常见的方法有三种，即12求和法、Box-Muller法和极坐标法，下面是Box-Muller方法的代码：  </p>
+
+<p><a href="http://www.cnki.com.cn/Article/CJFDTOTAL-JCGC201012026.htm">Gauss随机变量产生方法的比较研究</a>  </p>
+
+<p>下面的论文中是各种方法的比较：</p>
+
+<p><a href="http://c-faq-chn.sourceforge.net/ccfaq/node239.html">Box-Muller法产生随机数</a>  </p>
+
+<h2 id="section-4">五. 重采样原理</h2>
+
+<p>假设共有N个粒子，每个粒子权重的数组是weight[N]<br />
+cumulateWeight[N]数组用于存放weight数组前i项的和，即</p>
+
+<blockquote>
+  <p>cumulateWeight[i] = weight[0] + weight[1] + …+ weight[i-1];</p>
+</blockquote>
+
+<p>之后产生一个随机数num，在cumulateWeight数组中寻找一个最小的j，使得
+cumulateWeight[j] &lt;=num<br />
+这个j在weight[N]中对应的权重就是我们要找的。
+为什么这种方法可以筛选出权重较大的数呢？如果weight[i]非常大，那么cumulateWeight[i]和cumulateWeight[i+1]之间的间隔也会非常大，那么随机数就有很大可能落在cumulateWeight[i]和cumulateWeight[i+1]之间，从而选出cumulateWeight[i]，其对应的权重就是weight[i];</p>
+
+
+        </div>
+    </div>
+</div>
+
+<div id="postunit-floyd" class="postunit">
+    <div class="unit_inner">
+        <div class="post">
+            <h1><a href="/floyd" class="structural">Floyd</a></h1>
+            <p>最近复习了下最短路算法中最简单的的floyd算法，floyd的基本结构如下</p>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">k</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+    <span class="p">{</span>
+    	<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+    	<span class="p">{</span>
+    		<span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">j</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+    		<span class="p">{</span>
+    			<span class="k">if</span><span class="p">(</span> <span class="n">dis</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span><span class="o">+</span><span class="n">dis</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">k</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dis</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+    			<span class="p">{</span>
+    				<span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">dis</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span><span class="o">+</span><span class="n">dis</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">k</span><span class="p">];</span>
+    			<span class="p">}</span>
+    		<span class="p">}</span>
+    	<span class="p">}</span>
+    <span class="p">}</span></code></pre></div>
+
+<p>k是中间节点，一定要放在最外层循环，为什么呢？我们来看下面这个例子：</p>
+
+<p><img src="http://lililqth.github.io/images/floyd.png" alt="floyd" /></p>
+
+<p>如果将K放在最内层循环，对于节点A到节点B，只能够找到A-&gt;B一条路径，因为A-&gt;D+D-&gt;B=INF且A-&gt;C+C-&gt;B=INF<br />
+这时所有的中间节点都遍历完成，1到2的最短距离被确定为9，这显然是不正确的，A-&gt;B的距离被过早确定了。因此我们必须将中间节点放在最外层循环中。<br />
+照例附上一道floyd入门题 
+<strong>poj 1125</strong></p>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="cp">#include &lt;stdio.h&gt;</span>
+<span class="cp">#include &lt;string.h&gt;</span>
+<span class="cp">#include &lt;stdlib.h&gt;</span>
+<span class="cp">#include &lt;limits.h&gt;</span>
+<span class="cp">#define INT_MAX 9999999</span>
+<span class="kt">int</span> <span class="n">map</span><span class="p">[</span><span class="n">max</span><span class="p">][</span><span class="n">max</span><span class="p">];</span>
+<span class="kt">int</span> <span class="nf">main</span><span class="p">(</span><span class="kt">int</span> <span class="n">argc</span><span class="p">,</span><span class="kt">char</span><span class="o">**</span> <span class="n">argv</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="kt">int</span> <span class="n">n</span><span class="p">,</span><span class="n">nEachPerson</span><span class="p">;</span>
+    <span class="k">while</span><span class="p">(</span><span class="n">scanf</span><span class="p">(</span><span class="s">&quot;%d&quot;</span><span class="p">,</span><span class="o">&amp;</span><span class="n">n</span><span class="p">)</span><span class="o">&amp;&amp;</span><span class="n">n</span><span class="p">)</span>
+    <span class="p">{</span>
+        <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="n">max</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">j</span><span class="o">&lt;</span><span class="n">max</span><span class="p">;</span><span class="n">j</span><span class="o">++</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="mi">0</span><span class="p">;</span>
+                <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">INT_MAX</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+      <span class="kt">int</span> <span class="n">person</span><span class="p">,</span><span class="n">time</span><span class="p">;</span>
+      <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span><span class="p">;</span><span class="n">i</span><span class="o">++</span><span class="p">)</span>
+      <span class="p">{</span>
+            <span class="n">scanf</span><span class="p">(</span><span class="s">&quot;%d&quot;</span><span class="p">,</span><span class="o">&amp;</span><span class="n">nEachPerson</span><span class="p">);</span>
+            <span class="k">while</span><span class="p">(</span><span class="n">nEachPerson</span><span class="o">--</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">scanf</span><span class="p">(</span><span class="s">&quot;%d %d&quot;</span><span class="p">,</span><span class="o">&amp;</span><span class="n">person</span><span class="p">,</span><span class="o">&amp;</span><span class="n">time</span><span class="p">);</span>
+                <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">person</span><span class="p">]</span> <span class="o">=</span> <span class="n">time</span><span class="p">;</span>
+            <span class="p">}</span>
+      <span class="p">}</span>
+      <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">k</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">k</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">k</span><span class="o">++</span><span class="p">)</span>
+      <span class="p">{</span>
+            <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">j</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">j</span><span class="o">++</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="kt">int</span> <span class="n">distance</span> <span class="o">=</span> <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">k</span><span class="p">]</span><span class="o">+</span><span class="n">map</span><span class="p">[</span><span class="n">k</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+                    <span class="k">if</span><span class="p">(</span> <span class="n">distance</span> <span class="o">&lt;</span> <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+                    <span class="p">{</span>
+                        <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">=</span> <span class="n">distance</span><span class="p">;</span>
+                   <span class="p">}</span>
+                <span class="p">}</span>
+             <span class="p">}</span>
+          <span class="p">}</span>
+          <span class="kt">int</span> <span class="n">minFinal</span><span class="o">=</span><span class="n">INT_MAX</span> <span class="p">,</span> <span class="n">maxEachLine</span><span class="o">=-</span><span class="mi">1</span><span class="p">,</span> <span class="n">minStart</span><span class="o">=</span><span class="n">INT_MAX</span><span class="p">;</span>
+          <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">i</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+          <span class="p">{</span>
+               <span class="n">maxEachLine</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span><span class="p">;</span>
+               <span class="k">for</span><span class="p">(</span><span class="kt">int</span> <span class="n">j</span><span class="o">=</span><span class="mi">1</span> <span class="p">;</span> <span class="n">j</span><span class="o">&lt;=</span><span class="n">n</span> <span class="p">;</span><span class="n">j</span><span class="o">++</span><span class="p">)</span>
+               <span class="p">{</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">i</span><span class="o">==</span><span class="n">j</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="k">continue</span><span class="p">;</span>
+                <span class="p">}</span>
+                <span class="k">if</span><span class="p">(</span><span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span> <span class="o">&gt;</span> <span class="n">maxEachLine</span><span class="p">)</span>
+                <span class="p">{</span>
+                    <span class="n">maxEachLine</span> <span class="o">=</span> <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+                <span class="p">}</span>
+            <span class="p">}</span>    
+            <span class="k">if</span><span class="p">(</span><span class="n">maxEachLine</span><span class="o">&lt;</span><span class="n">minFinal</span><span class="p">)</span>
+            <span class="p">{</span>
+                <span class="n">minFinal</span> <span class="o">=</span> <span class="n">maxEachLine</span><span class="p">;</span>
+                <span class="n">minStart</span> <span class="o">=</span> <span class="n">i</span><span class="p">;</span>
+            <span class="p">}</span>
+        <span class="p">}</span>
+        <span class="k">if</span><span class="p">(</span><span class="n">minFinal</span><span class="o">==</span><span class="n">INT_MAX</span><span class="p">)</span>
+        <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;disjoint</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">);</span>
+        <span class="p">}</span>
+        <span class="k">else</span>
+        <span class="p">{</span>
+            <span class="n">printf</span><span class="p">(</span><span class="s">&quot;%d %d</span><span class="se">\n</span><span class="s">&quot;</span><span class="p">,</span><span class="n">minStart</span><span class="p">,</span><span class="n">minFinal</span><span class="p">);</span>
+        <span class="p">}</span>
+    <span class="p">}</span>
+<span class="c1">//system(&quot;pause&quot;);</span>
+    <span class="k">return</span> <span class="mi">0</span><span class="p">;</span>
+<span class="p">}</span></code></pre></div>
+
+        </div>
+    </div>
+</div>
+
+
+        </div>
+        <br/>
+        &copy lililqth
+      </div>
+    </div>
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-47292064-2', 'auto');
+    ga('send', 'pageview');
+
+</script>
+</div>
+
+<div id="extensions">
+
+
+
+<a href="https://github.com/lililqth" class="github" title="@lililqth on GitHub">
+    GitHub
+</a>
+
+
+<a href="http://lililqth.github.io/kekeandme" class="love" title="LOVE">
+    LOVE
+</a>
+
+
+<a href="http://weibo.com/lililqth" class="weibo" title="@lililqth on Weibo">
+    Weibo
+</a>
+
+
+
+
+    <a href="/page3"
+    class="next" title="Newer posts">Previous</a>
+
+</div>
+
+
+        </div>
+	</body>
+</html>

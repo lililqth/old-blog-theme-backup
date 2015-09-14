@@ -1,0 +1,264 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta charset="UTF-8" />
+        <title>快速字符串匹配KMP</title>
+        
+        <meta name="author" content="lilith qi" />
+        
+		<link rel="alternate" type="application/rss+xml" href="/rss.xml" />
+		<link rel="stylesheet" type="text/css" href="/sevenpointfive.css" />
+		<link rel="stylesheet" type="text/css" href="/syntax.css" />
+		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=EB+Garamond' />
+		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cantarell' />
+		<!--[if lt IE 9]>
+		<style type="text/css">
+			.startup_box {
+				width: 688px; /* 750px minus the inner box's padding and outer box's border because of stupid IE box model */
+			}
+		</style>
+		<![endif]-->
+	</head>
+	<body>
+        <div id="container">
+        <div id="body">
+<div class="startup_box">
+  <div class="startup_box_inner">
+    <div class="header">
+        <div class="headunit">
+            <div class="unit_inner">
+                <h1><a href="/" class="structural">Alice and bird</a></h1>
+            </div>
+        </div>
+        <h2>Starting up...</h2>
+        <div class="progressbar">
+            <div class="sofar"></div>
+        </div>
+    </div>
+    <div class="posts">
+
+
+<div id="postunit-快速字符串匹配KMP" class="postunit">
+    <div class="unit_inner">
+        <div class="post">
+            <h1><a href="/%E5%BF%AB%E9%80%9F%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8DKMP" class="structural">快速字符串匹配KMP</a></h1>
+            <p>传统的代码因子提取，要求两段代码完全相同，要求各指令的操作符和操作数都完全相同。实质是子串相同匹配。本文将介绍一种简单的子串相同匹配算法KMP。<br />
+现在有一个字符串”ABCDAB ABCDABCDABDE FAEG” 我想知道其中是否包含另一个字符串”ABD”。<br />
+规定”ABCDAB ABCDABCDABDE FAEG”是匹配串， “ABCDABD”是模式串。  </p>
+
+<h2 id="section">传统方法</h2>
+
+<p>下面是传统方法的一个演示</p>
+
+<h3 id="section-1">1. 第一个字符匹配</h3>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">ABCDAB</span> <span class="n">ABCDABCDABDE</span> <span class="n">FAEG</span>
+<span class="o">|</span>
+<span class="n">ABCDABD</span></code></pre></div>
+
+<h3 id="section-2">2. 第二个字符匹配</h3>
+
+<div class="highlight"><pre><code class="language-c" data-lang="c"><span class="n">ABCDAB</span> <span class="n">ABCDABCDABDE</span> <span class="n">FAEG</span>
+ <span class="o">|</span>
+<span class="n">ABCDABD</span></code></pre></div>
+
+<h3 id="section-3">3. 第七个字符不匹配</h3>
+<p>这时传统的方法中就会将模式串整个向后移动一位，从头开始新一轮的比较</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">ABCDAB</span>  <span class="n">ABCDABCDABDE</span> <span class="n">FAEG</span>
+      <span class="o">|</span>
+<span class="n">ABCDABD</span></code></pre></div>
+
+<p>我们可以看到，之后模式串中的A还要和匹配串中的B, C, D进行三次无意义的比较，同时在模式串的指针回到了0的位置，又需要从头开始匹配。
+如果能够直接将模式串移动到匹配串第二个A处，并从模式串的D处开始比较，就可以有效的减少比较次数。</p>
+
+<h2 id="kmp">KMP算法</h2>
+<p>怎么做到这一点呢，可以针对模式串，算出一张『部分匹配表』</p>
+
+<table>
+  <thead>
+    <tr>
+      <th>模式串</th>
+      <th style="text-align: center">部分匹配值</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <td>A</td>
+      <td style="text-align: center">0</td>
+    </tr>
+    <tr>
+      <td>B</td>
+      <td style="text-align: center">0</td>
+    </tr>
+    <tr>
+      <td>C</td>
+      <td style="text-align: center">0</td>
+    </tr>
+    <tr>
+      <td>D</td>
+      <td style="text-align: center">0</td>
+    </tr>
+    <tr>
+      <td>A</td>
+      <td style="text-align: center">1</td>
+    </tr>
+    <tr>
+      <td>B</td>
+      <td style="text-align: center">2</td>
+    </tr>
+    <tr>
+      <td>D</td>
+      <td style="text-align: center">0</td>
+    </tr>
+  </tbody>
+</table>
+
+<p>部分匹配表的计算方法后面再说，先看看怎么用。</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">ABCDAB</span>  <span class="n">ABCDABCDABDE</span> <span class="n">FAEG</span>
+      <span class="o">|</span>
+<span class="n">ABCDABD</span></code></pre></div>
+
+<p>D和空格不对应，已知已经匹配的字符有6个。查表可知，最后一个匹配的字符对应的部分匹配值是2。</p>
+
+<blockquote>
+  <p>移动位数 = 已经匹配的字符数 - 部分匹配值</p>
+</blockquote>
+
+<h3 id="section-4">4. 向右移动四位</h3>
+
+<p>由公式可得，应该将模式串向右移动4位。然后将模式串的指针移动到部分匹配值对应的2处。</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">ABCDAB</span>  <span class="n">ABCDABCDABDE</span> <span class="n">FAEG</span>
+      <span class="o">|</span>
+    <span class="n">ABCDABD</span></code></pre></div>
+
+<h3 id="section-5">5. 向右移动两位</h3>
+<p>现在C和空格不匹配，将模式串向右移动2-0=2位，模式串指针移动到0</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">ABCDAB</span>  <span class="n">ABCDABCDABDE</span> <span class="n">FAEG</span>
+        <span class="o">|</span>
+        <span class="n">ABCDABD</span></code></pre></div>
+
+<h3 id="section-6">6. 匹配完成</h3>
+<p>模式串和匹配串的指针向后移动直到匹配完成。</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="n">ABCDAB</span>  <span class="n">ABCDABDABDE</span> <span class="n">FAEG</span>
+              <span class="o">|</span>
+        <span class="n">ABCDABD</span></code></pre></div>
+
+<h2 id="section-7">计算部分匹配表</h2>
+<p>部分匹配表中部分匹配值就是前缀和后缀中最长共有元素的长度。
+&gt; ABCDAB的前缀为 {“A”, “AB”, “ABC”, “ABCD”, “ABCDA”}
+&gt;ABCDAB的后缀为{“B”, “AB”, “DAB”, “CDAB”, “BCDAB”}
+&gt; 最长共有元素的长度为2</p>
+
+<p>有的时候，字符串的头尾会有重复的子串，比如说在ABCDAB中的重复子串是”AB”，那么它的部分匹配长度是2，下一步就直接将模式串向后移动4位，就可以直接到第二个AB处。</p>
+
+<h2 id="section-8">最长重复子串</h2>
+<p>KMP除了可以应用在上述的字符串中，还可以用于求解最长重复子串。
+在求解A[i:j]的Next数组的过程中，如果Next[k]的值是x，则有A[i:i+x] = A[k-x+1:k+1]（以上均为前闭后开区间），这就可以很自然地联想到最长重复子串问题。
+next数组中最大值所对应的子串就是最长重复子串。</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="c"># List 存放待求字符串&quot;ABCDAB&quot;</span>
+<span class="k">def</span> <span class="nf">getNextArrayMax</span><span class="p">(</span><span class="n">List</span><span class="p">):</span>
+    <span class="c"># Next数组</span>
+    <span class="n">Next</span> <span class="o">=</span> <span class="p">[</span><span class="o">-</span><span class="mi">1</span> <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">List</span><span class="p">)</span><span class="o">+</span><span class="mi">2</span><span class="p">)]</span>
+    <span class="c"># 保存Next中的最大值</span>
+    <span class="n">Max</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">i</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="n">j</span> <span class="o">=</span> <span class="o">-</span><span class="mi">1</span>
+    <span class="k">while</span> <span class="n">i</span> <span class="o">&lt;</span> <span class="nb">len</span><span class="p">(</span><span class="n">List</span><span class="p">):</span>
+        <span class="k">if</span> <span class="n">j</span><span class="o">==-</span><span class="mi">1</span> <span class="ow">or</span> <span class="n">List</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">==</span> <span class="n">List</span><span class="p">[</span><span class="n">j</span><span class="p">]:</span>
+            <span class="n">j</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">i</span> <span class="o">+=</span> <span class="mi">1</span>
+            <span class="n">Next</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">j</span>
+            <span class="k">if</span> <span class="n">j</span> <span class="o">&gt;</span> <span class="n">Max</span><span class="p">:</span>
+                <span class="n">Max</span> <span class="o">=</span> <span class="n">j</span>
+         <span class="k">else</span><span class="p">:</span>
+            <span class="c"># 举例：如果在第二个AB处适配，则模式串移动到第一个AB后，也就是C处</span>
+            <span class="n">j</span> <span class="o">=</span> <span class="n">Next</span><span class="p">[</span><span class="n">j</span><span class="p">]</span>
+    <span class="k">return</span> <span class="n">Max</span></code></pre></div>
+
+<p>函数返回的Max就是最长重复子串的长度，通过该值和Max出现的位置可以容易地得到重复串的起始位。
+如果一个重复子字符串出现在母字符串的首部，就可以用上面的算法检测出来。如果要检测出第一次出现在字符串中部的重复子串，还需要一个总控程序。</p>
+
+<div class="highlight"><pre><code class="language-python" data-lang="python"><span class="k">def</span> <span class="nf">findRedundancy</span><span class="p">(</span><span class="n">Str</span><span class="p">):</span>
+    <span class="n">maxLen</span> <span class="o">=</span> <span class="mi">0</span>
+    <span class="k">for</span> <span class="n">i</span> <span class="ow">in</span> <span class="nb">range</span><span class="p">(</span><span class="nb">len</span><span class="p">(</span><span class="n">Str</span><span class="p">)</span><span class="o">-</span><span class="mi">1</span><span class="p">):</span>
+        <span class="nb">max</span> <span class="o">=</span> <span class="n">getNextArrayMax</span><span class="p">(</span><span class="nb">str</span><span class="p">[</span><span class="n">i</span><span class="p">:])</span>
+        <span class="k">if</span> <span class="nb">max</span> <span class="o">&gt;</span> <span class="n">maxLen</span><span class="p">:</span>
+            <span class="n">maxLen</span> <span class="o">=</span> <span class="nb">max</span>
+    <span class="k">return</span> <span class="n">maxLen</span></code></pre></div>
+
+<p>以上程序中的maxLen就是整个字符串中最长重复子串的长度。</p>
+
+            <!--多说评论 start-->
+            <div class="ds-thread" data-thread-key=/%E5%BF%AB%E9%80%9F%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8DKMP data-title=快速字符串匹配KMP data-url=/%E5%BF%AB%E9%80%9F%E5%AD%97%E7%AC%A6%E4%B8%B2%E5%8C%B9%E9%85%8DKMP></div>
+            <!-- 多说评论框 end -->
+            <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"helloqiji"};
+                (function() {
+                 var ds = document.createElement('script');
+                 ds.type = 'text/javascript';ds.async = true;
+                 ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                 ds.charset = 'UTF-8';
+                 (document.getElementsByTagName('head')[0] 
+                  || document.getElementsByTagName('body')[0]).appendChild(ds);
+                 })();
+            </script>
+            <!-- 多说公共JS代码 end -->
+        </div>
+    </div>
+</div>
+
+        </div>
+        <br/>
+        &copy lililqth
+      </div>
+    </div>
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-47292064-2', 'auto');
+    ga('send', 'pageview');
+
+</script>
+</div>
+
+<div id="extensions">
+
+    <a href="/%E4%BD%BF%E7%94%A8ElementTree%E8%A7%A3%E6%9E%90XML" class="previous" title="Previous post">Previous</a>
+
+
+
+<a href="https://github.com/lililqth" class="github" title="@lililqth on GitHub">
+    GitHub
+</a>
+
+
+<a href="http://lililqth.github.io/kekeandme" class="love" title="LOVE">
+    LOVE
+</a>
+
+
+<a href="http://weibo.com/lililqth" class="weibo" title="@lililqth on Weibo">
+    Weibo
+</a>
+
+
+
+
+    <a href="/StringTemplate%E6%9D%83%E5%A8%81%E6%8C%87%E5%8D%97%EF%BC%881%EF%BC%89" class="next" title="Next post">Next</a>
+
+</div>
+
+
+        </div>
+	</body>
+</html>

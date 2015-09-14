@@ -1,0 +1,31 @@
+<div id="extensions">
+{% if paginator.next_page %}
+    <a href="/page{{ paginator.next_page }}" class="previous" title="Older posts">Next</a>
+{% elsif page.previous %}
+    <a href="{{ page.previous.url }}" class="previous" title="Previous post">Previous</a>
+{% endif %}
+
+{% if site.github %}
+<a href="https://github.com/{{ site.github }}" class="github" title="@{{ site.github }} on GitHub">
+    GitHub
+</a>
+{% endif %}
+
+<a href="http://lililqth.github.io/kekeandme" class="love" title="LOVE">
+    LOVE
+</a>
+
+{% if site.weibo %}
+<a href="http://weibo.com/{{site.weibo}}" class="weibo" title="@{{site.weibo}} on Weibo">
+    Weibo
+</a>
+{% endif %}
+
+
+{% if paginator.previous_page %}
+    <a href={% if paginator.previous_page == 1 %}"/"{% else %}"/page{{ paginator.previous_page }}"{% endif %}
+    class="next" title="Newer posts">Previous</a>
+{% elsif page.next %}
+    <a href="{{ page.next.url }}" class="next" title="Next post">Next</a>
+{% endif %}
+</div>

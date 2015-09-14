@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html>
+	<head>
+        <meta charset="UTF-8" />
+        <title>请慎重选择『无穷大』的值</title>
+        
+        <meta name="author" content="lilith qi" />
+        
+		<link rel="alternate" type="application/rss+xml" href="/rss.xml" />
+		<link rel="stylesheet" type="text/css" href="/sevenpointfive.css" />
+		<link rel="stylesheet" type="text/css" href="/syntax.css" />
+		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=EB+Garamond' />
+		<link rel='stylesheet' type='text/css' href='http://fonts.googleapis.com/css?family=Cantarell' />
+		<!--[if lt IE 9]>
+		<style type="text/css">
+			.startup_box {
+				width: 688px; /* 750px minus the inner box's padding and outer box's border because of stupid IE box model */
+			}
+		</style>
+		<![endif]-->
+	</head>
+	<body>
+        <div id="container">
+        <div id="body">
+<div class="startup_box">
+  <div class="startup_box_inner">
+    <div class="header">
+        <div class="headunit">
+            <div class="unit_inner">
+                <h1><a href="/" class="structural">Alice and bird</a></h1>
+            </div>
+        </div>
+        <h2>Starting up...</h2>
+        <div class="progressbar">
+            <div class="sofar"></div>
+        </div>
+    </div>
+    <div class="posts">
+
+
+<div id="postunit-请慎重选择无穷大的值" class="postunit">
+    <div class="unit_inner">
+        <div class="post">
+            <h1><a href="/%E8%AF%B7%E6%85%8E%E9%87%8D%E9%80%89%E6%8B%A9%E6%97%A0%E7%A9%B7%E5%A4%A7%E7%9A%84%E5%80%BC" class="structural">请慎重选择『无穷大』的值</a></h1>
+            <p>我们在程序中经常会用到INF来表示规定范围内的最大值，大部分的人会使用99999999或者1000000000这样的数。<br />
+在不明确的情况下，许多程序员会使用C++中自带的int_max（0x7fffffff）作为无穷大。如果这个值仅仅用于一般的比较，那么选择int_max是可以的，但是通常情况下，我们会将这个值代入运算中去。 
+看下面这个情况：  </p>
+
+<div class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="c1">// dijkstra</span>
+<span class="kt">int</span> <span class="n">map</span><span class="p">[</span><span class="mi">10</span><span class="p">][</span><span class="mi">10</span><span class="p">];</span>  
+<span class="kt">int</span> <span class="n">dis</span><span class="p">[</span><span class="mi">10</span><span class="p">];</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span> <span class="n">i</span><span class="o">&lt;</span><span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="n">dis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">map</span><span class="p">[</span><span class="mi">0</span><span class="p">][</span><span class="n">i</span><span class="p">];</span>
+<span class="p">}</span>
+<span class="p">...</span>
+<span class="k">for</span> <span class="p">(</span><span class="kt">int</span> <span class="n">i</span><span class="o">=</span><span class="mi">0</span><span class="p">;</span><span class="n">i</span><span class="o">&lt;</span><span class="mi">10</span><span class="p">;</span> <span class="n">i</span><span class="o">++</span><span class="p">)</span>
+<span class="p">{</span>
+    <span class="k">if</span> <span class="p">(</span><span class="n">dis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dis</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">])</span>
+    <span class="p">{</span>
+        <span class="n">dis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">=</span> <span class="n">dis</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">];</span>
+    <span class="p">}</span>
+<span class="p">}</span>
+<span class="p">...</span></code></pre></div>
+
+<p>上面这段代码是dijkstra中的一部分，其中松弛的语句：</p>
+
+<div class="highlight"><pre><code class="language-c--" data-lang="c++"><span class="n">dis</span><span class="p">[</span><span class="n">i</span><span class="p">]</span> <span class="o">&lt;</span> <span class="n">dis</span><span class="p">[</span><span class="n">j</span><span class="p">]</span> <span class="o">+</span> <span class="n">map</span><span class="p">[</span><span class="n">i</span><span class="p">][</span><span class="n">j</span><span class="p">]</span></code></pre></div>
+
+<p>如果map[i][j]恰好为INF（i和j之间没有通路），就会溢出。<br />
+从这里我们可以看出，INF最好需要满足以下几点：<br />
+1. 无穷大加有限的数是无穷大。<br />
+2. 无穷大加无穷大是无穷大。<br />
+3. memset可用。  </p>
+
+<p>在我读过的代码中，最精巧的无穷大数是<strong>0x3f3f3f3f</strong>。<br />
+0x3f3f3f3f + 0x3f3f3f3f = 2122219134<br />
+memset是以字节为单位进行赋值很巧的是0x3f3f3f3f的每一个字节都是0x3f，因此最终得到的int数组中的每一个int的每一个字节都是0x3f,总得来看每一个int都是0x3f3f3f3f.<br />
+<strong>那么最小值呢？</strong><br />
+同样的道理，我们可以选用绝对值接近而且同样好记的：0xc0c0c0c0!它的绝对值仅仅和0x3f3f3f3f差1。<br />
+忘掉int_max吧！</p>
+
+            <!--多说评论 start-->
+            <div class="ds-thread" data-thread-key=/%E8%AF%B7%E6%85%8E%E9%87%8D%E9%80%89%E6%8B%A9%E6%97%A0%E7%A9%B7%E5%A4%A7%E7%9A%84%E5%80%BC data-title=请慎重选择『无穷大』的值 data-url=/%E8%AF%B7%E6%85%8E%E9%87%8D%E9%80%89%E6%8B%A9%E6%97%A0%E7%A9%B7%E5%A4%A7%E7%9A%84%E5%80%BC></div>
+            <!-- 多说评论框 end -->
+            <!-- 多说公共JS代码 start (一个网页只需插入一次) -->
+            <script type="text/javascript">
+                var duoshuoQuery = {short_name:"helloqiji"};
+                (function() {
+                 var ds = document.createElement('script');
+                 ds.type = 'text/javascript';ds.async = true;
+                 ds.src = (document.location.protocol == 'https:' ? 'https:' : 'http:') + '//static.duoshuo.com/embed.js';
+                 ds.charset = 'UTF-8';
+                 (document.getElementsByTagName('head')[0] 
+                  || document.getElementsByTagName('body')[0]).appendChild(ds);
+                 })();
+            </script>
+            <!-- 多说公共JS代码 end -->
+        </div>
+    </div>
+</div>
+
+        </div>
+        <br/>
+        &copy lililqth
+      </div>
+    </div>
+<script>
+    (function(i,s,o,g,r,a,m){i['GoogleAnalyticsObject']=r;i[r]=i[r]||function(){
+            (i[r].q=i[r].q||[]).push(arguments)},i[r].l=1*new Date();a=s.createElement(o),
+        m=s.getElementsByTagName(o)[0];a.async=1;a.src=g;m.parentNode.insertBefore(a,m)
+    })(window,document,'script','//www.google-analytics.com/analytics.js','ga');
+
+    ga('create', 'UA-47292064-2', 'auto');
+    ga('send', 'pageview');
+
+</script>
+</div>
+
+<div id="extensions">
+
+    <a href="/%E7%B2%92%E5%AD%90%E6%BB%A4%E6%B3%A2" class="previous" title="Previous post">Previous</a>
+
+
+
+<a href="https://github.com/lililqth" class="github" title="@lililqth on GitHub">
+    GitHub
+</a>
+
+
+<a href="http://lililqth.github.io/kekeandme" class="love" title="LOVE">
+    LOVE
+</a>
+
+
+<a href="http://weibo.com/lililqth" class="weibo" title="@lililqth on Weibo">
+    Weibo
+</a>
+
+
+
+
+    <a href="/%E4%B8%BA%E4%BB%80%E4%B9%88word%E5%BF%85%E9%A1%BB%E6%AD%BB" class="next" title="Next post">Next</a>
+
+</div>
+
+
+        </div>
+	</body>
+</html>
